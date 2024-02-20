@@ -7,3 +7,8 @@
 !/agents
 !/tasks
 !/model_loader
+!main.py
+!requirements.txt
+!config.py
+!.flake8
+!setup.py

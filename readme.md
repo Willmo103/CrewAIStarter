@@ -2,9 +2,11 @@
 
 Welcome to the exciting world of CrewAI! This guide will help you build your own custom crew package, complete with Agents, Tasks, Crews, Tools, and ModelLoaders. Don't worry if you're a Jr. dev or a newcomer – we'll break it down step-by-step with clear explanations and helpful tips.
 
-1. Project Setup:
+----
 
-Create a Directory:
+## Project Setup
+
+**Create a Directory:**
 Let's start by making a new folder for your crew package. Open your terminal and type:
 
 ```Bash
@@ -12,19 +14,22 @@ mkdir crew_package
 cd crew_package
 ```
 
-## Install Dependencies
-
+**Install Dependencies**
 We need some tools to build our crew. In your terminal, run:
 
 ```Bash
 pip install -r requirements.txt
 ```
 
+----
+
 ## Building Your Crew
 
 Now, let's meet the stars of your crew:
 
-### Agents
+----
+
+## Agents
 
 **What they are:**
 These are the AI brains of your crew, responsible for processing information and generating responses.
@@ -35,7 +40,9 @@ Inside, define a class with methods like respond to handle prompts and generate 
 Use langchain_community.llms.ollama.Ollama as your language model.
 Check out the `/agents/starter_agent.py` example for inspiration.
 
-### Tasks
+----
+
+## Tasks
 
 **What they are:**
 These are the specific jobs your crew needs to tackle.
@@ -46,7 +53,9 @@ Define a class with properties like description and input/output specifications.
 Implement the execute method to define how the task works.
 See the `/tasks/starter_tasks.py` example for a reference.
 
-### Crews
+----
+
+## Crews
 
 **What they are:**
 These are groups of agents and tools working together on tasks.
@@ -57,7 +66,9 @@ Define a class with properties like agents, tools, and tasks.
 Specify which agents and tools are part of the crew and which tasks they handle.
 Take a look at the `/crews/starter_crew.py` example for guidance.
 
-### Tools
+----
+
+## Tools
 
 **What they are:**
 These are helper functions or modules that your agents and tasks can use.
@@ -67,7 +78,9 @@ In the tools folder, create a new file (e.g., text_cleaner.py).
 Define functions that perform specific tasks, like cleaning text or generating reports.
 See the `/tools/starter_tools.py` example for an idea.
 
-### ModelLoaders
+----
+
+## ModelLoaders
 
 **What they are:**
 The concept of a 'ModelLoader' is not a part of the CrewAI framework,
@@ -83,7 +96,9 @@ Define a function download_and_create_model using os.environ['OLLAMA_BASE_URL'] 
 Handle potential issues like authentication and caching.
 Refer to the `/model_loaders/starter_loader.py` example for structure.
 
-### Main Script
+----
+
+## Main Script
 
 **What it does:**
 This script brings everything together and runs your crew.
@@ -93,6 +108,8 @@ Orchestrate interactions between them based on your application logic.
 Use the model_loaders to create Ollama models if needed.
 See `main.py` for a basic example.
 
+----
+
 ### Tips
 
 Start small! Begin with one agent, one task, and one crew.
@@ -100,6 +117,8 @@ Use meaningful names and comments to make your code clear.
 Test each component thoroughly to ensure it works as expected.
 Don't hesitate to consult documentation and examples online.
 Most importantly, have fun and experiment!
+
+----
 
 ### Additional Resources
 
