@@ -2,3 +2,8 @@
 !layout.txt
 !.gitignore
 !*readme.md
+!__init__.py
+!/crew
+!/agents
+!/tasks
+!/model_loader
