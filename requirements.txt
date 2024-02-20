@@ -1,0 +1,8 @@
+crewai
+ollama
+langchain
+langchain_community
+langchain_core
+requests
+duckduckgo-search
+# praw
