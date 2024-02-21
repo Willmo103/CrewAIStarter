@@ -1,10 +1,9 @@
-from setuptools import setup, find_packages
-
+from setuptools import find_packages, setup
 
 setup(
     # name='FirstMate',
-    name='CrewCoach',
-    requires=['langchain_community', 'requests', 'crewai', 'langchain_core', 'ollama'],
+    name="CrewCoach",
+    requires=["langchain_community", "requests", "crewai", "langchain_core", "ollama"],
 )
 
 # TODO: Finish the setup.py file

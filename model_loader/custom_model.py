@@ -1,5 +1,6 @@
 from langchain_community.llms.ollama import Ollama
 
+
 class CustomModel:
 
     def __init__(self, model_name: str, **kwargs):

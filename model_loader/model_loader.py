@@ -1,13 +1,16 @@
 from model_loader.custom_model import CustomModel
 
+
 class ModelLoader:
 
     models = {
-        'summarizer': CustomModel({
-            'model_name': 'summarizer',
-            'modelfile': """""",
-            'temperature': 0.7,
-        }),
+        "summarizer": CustomModel(
+            {
+                "model_name": "summarizer",
+                "modelfile": """""",
+                "temperature": 0.7,
+            }
+        ),
     }
 
     @classmethod
