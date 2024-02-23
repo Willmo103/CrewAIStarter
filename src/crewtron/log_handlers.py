@@ -1,49 +1,12 @@
-import json
 import logging
-import os
-from logging import Logger
-from logging.config import dictConfig
 
 import psycopg2
 
-# from psycopg2.extras import DictCursor
-
-
-class Config:
-    def __init__(self):
-        self.package_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        self.config_file = os.path.join(self.package_root, "config.json")
-        self.config = self.read_config()
-        self.logger = self.init_logger()
-
-    def read_config(self):
-        with open(self.config_file) as file:
-            return json.load(file)
-
-    def init_logger(self):
-        dictConfig(self.config["loggingConfig"])
-        return Logger("app_logger")
-
-    def get(self, key):
-        return self.config.get(key, None)
-
-    def get_api_key(self, key):
-        return self.config.get("apiKeys").get(key, None)
-
-    def get_connection_string(self, key):
-        return self.config.get("connectionStrings").get(key, None)
-
-    @classmethod
-    def init_config(cls):
-        return Config()
-
 
 class PostgresHandler(logging.Handler):
-    def __init__(self, dbname, user, password, host):
+    def __init__(self, dbname, user, password, host, port):
         logging.Handler.__init__(self)
-        self.connection_string = (
-            f"dbname='{dbname}' user='{user}' password='{password}' host='{host}'"
-        )
+        self.connection_string = f"dbname='{dbname}' user='{user}' password='{password}' host='{host}' port='{port}'"
         self.conn = psycopg2.connect(self.connection_string)
         self.create_table()
 
@@ -77,8 +40,12 @@ class PostgresHandler(logging.Handler):
         self.format(
             record
         )  # Ensure record attributes like exc_info are formatted into strings
-        exc_info = self.formatException(record.exc_info) if record.exc_info else None
-        stack_info = self.formatStack(record.stack_info) if record.stack_info else None
+        exc_info = (
+            self.formatException(record.exc_info) if record.exc_info else None
+        )
+        stack_info = (
+            self.formatStack(record.stack_info) if record.stack_info else None
+        )
 
         with self.conn.cursor() as cursor:
             cursor.execute(
