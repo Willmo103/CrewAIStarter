@@ -1,0 +1,30 @@
+{
+    "name": "", // str | None
+    "base_url": "http://localhost:11434", // str | None
+    "model": "llama2", // str | None
+    "mirostat": "", // int | None
+    "mirostat_eta": "", // float | None
+    "mirostat_tau": "", // float | None
+    "num_ctx": "", // int | None
+    "num_gpu": "", // int | None
+    "num_thread": "", // int | None
+    "num_predict": "", // int | None
+    "repeat_last_n": "", // int | None
+    "repeat_penalty": "", // float | None
+    "temperature": "", // float | None
+    "stop": "", // List[str] | None
+    "tfs_z": "", // float | None
+    "top_k": "", // int | None
+    "top_p": "", // float | None
+    "system": "", // str | None
+    "template": "", // str | None
+    "format": "", // str | None
+    "timeout": "", // int | None
+    "headers": "", // dict | None
+    "cache": "", // bool | None
+    "verbose": "", // bool
+    "callbacks": "", // Callbacks
+    "tags": "", // List[str] | None
+    "metadata": "", // Dict[str, Any] | None
+    "callback_manager": "" // BaseCallbackManager | None
+}

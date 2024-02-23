@@ -19,3 +19,8 @@
 !.flake8
 !setup.py
 !*example*
+!modelfile_schema.json
+!pyproject.toml
+!.pre-commit-config.yaml
+!src
+!crewtron
