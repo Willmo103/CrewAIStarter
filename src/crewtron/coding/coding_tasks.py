@@ -1,9 +1,10 @@
+from coding.coding_agents import CodingAgents as ca
 from crewai import task
 
 
 class CodingTasks:
-    planning = task.Task(
-        agent="",
+    project_planning = task.Task(
+        agent=ca.product_manager,
         tools=[],
         goal="To produce an outline, workflow, and user stories",
         expected_output="""
@@ -21,7 +22,7 @@ class CodingTasks:
 
         ## User Stories
         - As a [type of user], I want [an action] so that [benefit].
-        """
+        """,
     )
 
     define_stack = task.Task(
@@ -38,7 +39,21 @@ class CodingTasks:
         database: PostgreSQL
         ci_cd: Jenkins
         ```
-        """
+        """,
+    )
+
+    create_database_schema = task.Task(
+        agent=ca.database_designer,
+        tools=[],
+        goal="To design and create the database schema, and test its efficiency",
+        expected_output="""
+        A database schema with efficient normalization and indexing, and a test
+        report on its performance and integrity.
+
+        Example:
+        - Schema: Tables and relationships defined with creation scripts written.
+        - Test Report: Performance and integrity tests passed.
+        """,
     )
 
     setup_environments = task.Task(
@@ -53,7 +68,7 @@ class CodingTasks:
         - Testing environment available at test.example.com
         - Production deployed to prod.example.com
         - CI/CD pipeline configured for automatic testing and deployment
-        """
+        """,
     )
 
     pair_programming = task.Task(
@@ -67,7 +82,7 @@ class CodingTasks:
         - Feature: User login functionality
         - Tests: 5 tests, all passing
         - Codebase: Integrated into branch `feature/user-login`
-        """
+        """,
     )
 
     code_review = task.Task(
@@ -79,7 +94,7 @@ class CodingTasks:
 
         Example:
         - Code Review Report: All standards met, ready for merge into `main`
-        """
+        """,
     )
 
     documentation = task.Task(
@@ -93,7 +108,7 @@ class CodingTasks:
         - API Documentation: Available at /docs/api
         - User Manual: Included in /docs/user-manual.pdf
         - Code Comments: Throughout the codebase for key functions
-        """
+        """,
     )
 
     crash_report_handling = task.Task(
@@ -108,7 +123,7 @@ class CodingTasks:
         - Issue: Memory leak in the data processing module
         - Severity: High
         - Steps to Reproduce: Described in the report
-        """
+        """,
     )
 
     post_mortem_report = task.Task(
@@ -123,7 +138,7 @@ class CodingTasks:
         - Cause: Failed database migration
         - Actions Taken: Rollback to previous version, data recovery procedures initiated
         - Lessons Learned: Need for better testing of migration scripts
-        """
+        """,
     )
 
     feature_enhancement_proposal = task.Task(
@@ -138,7 +153,7 @@ class CodingTasks:
         - Rationale: Increasing demand for hands-free operation
         - Benefits: Improved accessibility, user satisfaction
         - Implementation Plan: Detailed in the proposal document
-        """
+        """,
     )
 
     security_audit = task.Task(
@@ -152,7 +167,7 @@ class CodingTasks:
         - Vulnerabilities: Listed with descriptions
         - Risk Levels: High, Medium, Low
         - Recommendations: Specific actions for each identified vulnerability
-        """
+        """,
     )
 
     performance_optimization = task.Task(
@@ -166,5 +181,5 @@ class CodingTasks:
         - Performance Issue: Slow response time in the search functionality
         - Optimization: Indexing database tables, query optimization
         - Benchmark: Response time improved from 5s to 0.5s
-        """
+        """,
     )

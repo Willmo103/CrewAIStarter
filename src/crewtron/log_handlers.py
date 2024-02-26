@@ -40,12 +40,8 @@ class PostgresHandler(logging.Handler):
         self.format(
             record
         )  # Ensure record attributes like exc_info are formatted into strings
-        exc_info = (
-            self.formatException(record.exc_info) if record.exc_info else None
-        )
-        stack_info = (
-            self.formatStack(record.stack_info) if record.stack_info else None
-        )
+        exc_info = self.formatException(record.exc_info) if record.exc_info else None
+        stack_info = self.formatStack(record.stack_info) if record.stack_info else None
 
         with self.conn.cursor() as cursor:
             cursor.execute(

@@ -67,9 +67,7 @@ def log_time(func) -> callable:
             )
         except Exception as e:
             end = dt.datetime.now()
-            __logger.error(
-                f"{func.__name__} failed in {end - start}\nError: {e}"
-            )
+            __logger.error(f"{func.__name__} failed in {end - start}\nError: {e}")
         return result
 
     return wrapper
