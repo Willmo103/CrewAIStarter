@@ -63,12 +63,15 @@ def log_time(func) -> callable:
             result = func(*args, **kwargs)
             end = dt.datetime.now()
             __logger.debug(
-                f"{func.__name__} executed in {end - start}\nResult: {result.__str__() if result else ''}")
+                f"{func.__name__} executed in {end - start}\nResult: {result.__str__() if result else ''}"
+            )
         except Exception as e:
             end = dt.datetime.now()
             __logger.error(
-                f"{func.__name__} failed in {end - start}\nError: {e}")
+                f"{func.__name__} failed in {end - start}\nError: {e}"
+            )
         return result
+
     return wrapper
 
 

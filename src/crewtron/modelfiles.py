@@ -21,5 +21,5 @@ modelfiles = {
         "base_url": _base_url,
         "name": "SQL Writer",
         "description": "A model for writing SQL queries.",
-    }
+    },
 }

@@ -1,8 +1,8 @@
 from crewai import Agent
 from langchain_community.llms.ollama import Ollama
-from crewtron.config import get_base_url, init_logger, log_time, get_model_files
-from crewtron.modelfiles import modelfiles
 
+from crewtron.config import get_base_url, init_logger, log_time
+from crewtron.modelfiles import modelfiles
 
 # module-level logger
 _log = init_logger().getChild(__name__)
