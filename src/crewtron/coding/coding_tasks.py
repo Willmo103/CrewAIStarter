@@ -21,7 +21,7 @@ setup_environments_tools = [
     DockerTools.run_code,
 ]
 
-databse_tools = [
+database_tools = [
     DockerTools.write_code,
     DockerTools.run_code,
 ]
@@ -33,7 +33,7 @@ update_docker_env_tools = [
 class CodingTasks:
     project_planning = task.Task(
         agent=ca.product_manager,
-        tools=[],
+        tools=planning_tools,
         goal="To produce an outline, workflow, and user stories",
         expected_output="""
         A document detailing the project outline, workflow, and user stories
@@ -54,8 +54,8 @@ class CodingTasks:
     )
 
     define_stack = task.Task(
-        agent="",
-        tools=[],
+        agent=ca.product_manager
+        tools=define_stack_tools,
         goal="To decide on the technology stack and successfully create a docker environment",
         expected_output="""
         A YAML document describing the technology stack and environment setup,
@@ -73,8 +73,8 @@ class CodingTasks:
     )
 
     create_database_schema = task.Task(
-        agent=ca.database_designer,
-        tools=[],
+        agent=ca.database_designer
+        tools=database_tools,
         goal="To design and create the database schema, and test its efficiency",
         expected_output="""
         A database schema with efficient normalization and indexing, and a test
@@ -88,7 +88,7 @@ class CodingTasks:
 
     setup_environments = task.Task(
         agent="",
-        tools=[],
+        tools=setup_environments_tools,
         goal="To prepare all necessary environments including CI/CD pipelines",
         expected_output="""
         Fully configured development, testing, and production environments
@@ -116,7 +116,7 @@ class CodingTasks:
     )
 
     code_review = task.Task(
-        agent="",
+        agent=ca.senior_developer,
         tools=[],
         goal="To review the code for quality and readiness",
         expected_output="""
