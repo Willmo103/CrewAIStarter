@@ -1,8 +1,33 @@
 from crewai import Agent
 from langchain_community.llms.ollama import Ollama
 
-from
-_ollama_base = Ollama(base_url="http://192.168.1.129://11345")
+from crewtron.config import get_base_url, init_logger, log_time
+from crewtron.modelfiles import modelfiles
+
+# module-level logger
+_log = init_logger().getChild(__name__)
+_base_url = get_base_url()
+
+
+@log_time
+def build_ollama_agent(modelfile: str):
+    try:
+        _modelfile = load_model_file(modelfile)
+        return Ollama(_modelfile)
+    except Exception as e:
+        _log.error(f"Error building Ollama agent: {e}")
+        raise e
+
+
+@log_time
+def load_model_file(modelfile: str):
+    try:
+        mf = modelfiles[modelfile]
+        return Ollama(mf)
+    except Exception as e:
+        _log.error(f"Error loading model file: {e}")
+        raise e
+
 
 class AgentGroup:
     agents = {
@@ -20,8 +45,6 @@ class AgentGroup:
             You are also skilled at distilling complex information into
             easy-to-understand reports and presentations.
             """,
-            llm=_ollama_base
+            llm=_base_url,
         ),
     }
-
-
