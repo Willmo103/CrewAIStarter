@@ -1,6 +1,34 @@
 from coding.coding_agents import CodingAgents as ca
 from crewai import task
+import from coding_tools import BasicTools, DockerTools
 
+
+planning_tools = [
+    BasicTools.ask_question,
+    BasicTools.get_current_date,
+    BasicTools.save_output, # TODO: set a cache directory as a default location for saving output
+]
+# TODO: creat a cache directory in the setup of the project
+
+define_stack_tools = [
+    BasicTools.ask_question,
+    BasicTools.save_output,
+    DockerTools.build_image,
+]
+
+setup_environments_tools = [
+    DockerTools.write_code,
+    DockerTools.run_code,
+]
+
+databse_tools = [
+    DockerTools.write_code,
+    DockerTools.run_code,
+]
+
+update_docker_env_tools = [
+    DockerTools.build_image,
+]
 
 class CodingTasks:
     project_planning = task.Task(
@@ -28,9 +56,11 @@ class CodingTasks:
     define_stack = task.Task(
         agent="",
         tools=[],
-        goal="To decide on the technology stack",
+        goal="To decide on the technology stack and successfully create a docker environment",
         expected_output="""
-        A YAML document describing the technology stack and environment setup
+        A YAML document describing the technology stack and environment setup,
+        a set of instructions and files for creating the environemt and installing the dependencies.
+        a dockerfile to initialize the environment.
 
         Example:
         ```yaml
@@ -181,5 +211,18 @@ class CodingTasks:
         - Performance Issue: Slow response time in the search functionality
         - Optimization: Indexing database tables, query optimization
         - Benchmark: Response time improved from 5s to 0.5s
+        """,
+    )
+
+    update_dev_env = task.Task(
+        agent="",
+        tools=[],
+        goal="To update the development environment with a new Dockerfile",
+        expected_output="""
+        A new Docker environment with the updated configuration and dependencies
+
+        Example:
+        - Dockerfile: Updated with new dependencies
+        - Environment: Rebuilt and running with the latest changes
         """,
     )

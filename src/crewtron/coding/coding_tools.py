@@ -1,5 +1,8 @@
 import subprocess
 import uuid
+from langchain.agents import Tool
+# from langchain__experimental.utilities import PythonREPL
+
 
 from langchain.tools import tool
 from pydantic import BaseModel
@@ -111,3 +114,65 @@ class DockerTools:
         output = self.run_docker_command(args)
         print(f"Output from running command '{args.command}':\n{output}")
         return output
+
+    @tool("Update the development environment with a new Dockerfile", args_schema=DockerFileInput, return_direct=True)
+    def update_docker_env(self, args: DockerFileInput) -> DockerCreationOutput:
+        """Update the development environment with a new Dockerfile."""
+        self.container_id = None
+        return self.build_image(args)
+
+
+class BashEnvironment:
+    def __init__(self):
+        self.container_name = uuid.uuid4()
+        self.create_container(self.container_name)
+
+    def create_container(self, container_name):
+        result = subprocess.run(f"docker run -d --name {container_name} -it ubuntu", shell=True, capture_output=True, text=True)
+        if result.stderr:
+            print("Error:", result.stderr)
+            return None
+        return result.stdout.strip()
+
+    @tool("Run a bash command", return_direct=True)
+    def test_bash_command(self, command: str) -> str:
+        """Run a bash command."""
+        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        return result.stdout
+
+
+class PythonEnvironment:
+    def __init__(self):
+        self.container_name = uuid.uuid4()
+        self.create_container(self.container_name)
+
+    def create_container(self, container_name):
+        result = subprocess.run(f"docker run -d --name {container_name} -it python:3.8", shell=True, capture_output=True, text=True)
+        if result.stderr:
+            print("Error:", result.stderr)
+            return None
+        return result.stdout.strip()
+
+    @tool("Run a Python command", return_direct=True)
+    def test_python_command(self, command: str) -> str:
+        """Run a Python command."""
+        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        return result.stdout
+
+
+@tool("Create an environment for Python code execution", return_direct=True)
+def create_python_environment() -> PythonEnvironment:
+    """Create an environment for Python code execution."""
+    return PythonEnvironment()
+
+
+@tool("Create an environment for Bash command execution", return_direct=True)
+def create_bash_environment() -> BashEnvironment:
+    """Create an environment for Bash command execution."""
+    return BashEnvironment()
+
+
+@tool("Create a Docker environment from a Dockerfile", args_schema=DockerFileInput, return_direct=True)
+def create_docker_environment(args: DockerFileInput) -> DockerTools:
+    """Create a Docker environment from a Dockerfile."""
+    return DockerTools(dockerfile_content=args.content)
