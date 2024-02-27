@@ -1,52 +1,87 @@
-import subprocess
+import subprocess, os
 import uuid
-from langchain.agents import Tool
-# from langchain__experimental.utilities import PythonREPL
+from crewai.tools import tool
+from crewtron.config import _docker, _CACHE as _cache
 
+def build_image(args):
+    """Build a Docker image from the provided Dockerfile content."""
+    dockerfile_path = "/tmp/Dockerfile"
+    image_name = f"custom_{uuid.uuid4()}"
+    with open(dockerfile_path, "w") as file:
+        file.write(args.dockerfile_content)
+    result = subprocess.run(f"docker build -t {image_name} -f {dockerfile_path} .", shell=True, capture_output=True, text=True)
+    if result.stderr:
+        print("Error:", result.stderr)
+        return None
+    return result.stdout
 
-from langchain.tools import tool
-from pydantic import BaseModel
+def run_docker_command(container_id, command):
+    """Run a command in the initialized Docker container."""
+    if container_id is None:
+        print("Error: No container is initialized.")
+        return None
+    cmd = f"docker exec {container_id} {command}"
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    if result.stderr:
+        print("Error:", result.stderr)
+        return None
+    return result.stdout
 
+def write_code(container_id, code_content, file_path):
+    """Write code to a file within the Docker container."""
+    # Escape double quotes for shell command
+    escaped_code = code_content.replace('"', '\\"')
+    command = f'echo "{escaped_code}" > {file_path}'
+    run_docker_command(container_id, command)
+    print(f"Code written to {file_path} in container.")
 
-class DockerExecutionInput(BaseModel):
-    command: str
+def run_code(container_id, command):
+    """Run a specific command, such as a script, within the Docker container."""
+    output = run_docker_command(container_id, command)
+    print(f"Output from running command '{command}':\n{output}")
+    return output
 
+def update_docker_env(args):
+    """Update the development environment with a new Dockerfile."""
+    container_id = None
+    return build_image(args)
 
-class DockerFileInput(BaseModel):
-    content: str
+class DockerTools:
+    def __init__(self, dockerfile_content=None):
+        """Initialize a Docker environment from a Dockerfile, if provided."""
+        self.container_id = None
+        if dockerfile_content:
+            self.image_name = f"custom_{uuid.uuid4()}"
+            self.build_image(dockerfile_content, self.image_name)
+            self.container_id = self.create_container(self.image_name)
 
+    @tool("Build a Docker image from the provided Dockerfile content", return_direct=True)
+    @classmethod
+    def build_image(cls, args) -> DockerCreationOutput:
+        return build_image(args)
 
-class AskQuestionInput(BaseModel):
-    question: str
+    @tool("Run a command in the development environment", return_direct=True)
+    def run_docker_command(self, args) -> STDOutput:
+        return run_docker_command(self, args)
 
+    @tool("Write code to a file within the development environment", return_direct=True)
+    def write_code(self, args) -> str:
+        write_code(self, args)
 
-class CreateDockerContainerInput(BaseModel):
-    dockerfile_content: str
+    @tool("Run a specific command, such as a script, within the development environment")
+    def run_code(self, args) -> STDOutput:
+        return run_code(self, args)
 
-
-class WriteCodeInput(BaseModel):
-    file_path: str
-    code_content: str
-
-
-class SaveOutputInput(BaseModel):
-    filename: str
-    content: str
-
-
-class STDOutput(BaseModel):
-    output: str
-
-
-class DockerCreationOutput(BaseModel):
-    container_id: str
+    @tool("Update the development environment with a new Dockerfile", return_direct=True)
+    def update_docker_env(self, args) -> DockerCreationOutput:
+        return update_docker_env(self, args)
 
 
 class BasicTools:
-    @tool("Ask the customer for input", args_schema=AskQuestionInput, return_direct=True)
-    def ask_question(self, args: AskQuestionInput) -> str:
+    @tool("Ask the customer for input", return_direct=True)
+    def ask_question(self, question: str) -> str:
         """Simulate asking a question to the user via terminal input."""
-        print(args.question)
+        print(question)
         return input("Answer: ")
 
     @tool("Get the current date", return_direct=True)
@@ -55,11 +90,11 @@ class BasicTools:
         from datetime import datetime
         return datetime.now().strftime("%Y-%m-%d")
 
-    @tool("Write results to a file", args_schema=SaveOutputInput, return_direct=True)
-    def save_output(self, args: SaveOutputInput) -> str:
+    @tool("Write results to a file", return_direct=True)
+    def save_output(self, filename: str, content: str) -> str:
         """Save content to a file."""
-        with open(args.filename, 'w') as file:
-            file.write(args.content)
+        with open(os.path.join(_cashe, filename, 'w') as file:
+            file.write(content)
         return f"Output saved to {args.filename}"
 
 
@@ -72,9 +107,9 @@ class DockerTools:
             self.build_image(dockerfile_content, self.image_name)
             self.container_id = self.create_container(self.image_name)
 
-    @tool("Build a Docker image from the provided Dockerfile content", args_schema=CreateDockerContainerInput, return_direct=True)
+    @tool("Build a Docker image from the provided Dockerfile content", return_direct=True)
     @classmethod
-    def build_image(cls, args: CreateDockerContainerInput) -> DockerCreationOutput:
+    def build_image(cls, args) -> DockerCreationOutput:
         """Build a Docker image from the provided Dockerfile content."""
         dockerfile_path = "/tmp/Dockerfile"
         image_name = f"custom_{uuid.uuid4()}"
@@ -86,8 +121,8 @@ class DockerTools:
             return None
         return DockerCreationOutput(container_id=result.stdout.strip())
 
-    @tool("Run a command in the development environment", args_schema=DockerExecutionInput, return_direct=True)
-    def run_docker_command(self, args: DockerExecutionInput) -> STDOutput:
+    @tool("Run a command in the development environment", return_direct=True)
+    def run_docker_command(self, args) -> STDOutput:
         """Run a command in the initialized Docker container."""
         if self.container_id is None:
             print("Error: No container is initialized.")
@@ -99,8 +134,8 @@ class DockerTools:
             return None
         return STDOutput(output=result.stdout)
 
-    @tool("Write code to a file within the development environment", args_schema=WriteCodeInput, return_direct=True)
-    def write_code(self, args: WriteCodeInput) -> str:
+    @tool("Write code to a file within the development environment", return_direct=True)
+    def write_code(self, args) -> str:
         """Write code to a file within the Docker container."""
         # Escape double quotes for shell command
         escaped_code = args.code_content.replace('"', '\\"')
@@ -109,14 +144,14 @@ class DockerTools:
         print(f"Code written to {args.file_path} in container.")
 
     @tool("Run a specific command, such as a script, within the development environment")
-    def run_code(self, args: DockerExecutionInput) -> STDOutput:
+    def run_code(self, args) -> STDOutput:
         """Run a specific command, such as a script, within the Docker container."""
         output = self.run_docker_command(args)
         print(f"Output from running command '{args.command}':\n{output}")
         return output
 
-    @tool("Update the development environment with a new Dockerfile", args_schema=DockerFileInput, return_direct=True)
-    def update_docker_env(self, args: DockerFileInput) -> DockerCreationOutput:
+    @tool("Update the development environment with a new Dockerfile", return_direct=True)
+    def update_docker_env(self, args) -> DockerCreationOutput:
         """Update the development environment with a new Dockerfile."""
         self.container_id = None
         return self.build_image(args)
@@ -134,8 +169,8 @@ class BashEnvironment:
             return None
         return result.stdout.strip()
 
-    @tool("Run a bash command", return_direct=True)
-    def test_bash_command(self, command: str) -> str:
+    @tool("Run a bash command in a dev environment", return_direct=True)
+    def test_bash_command(command: str) -> str:
         """Run a bash command."""
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
         return result.stdout
