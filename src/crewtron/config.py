@@ -1,7 +1,6 @@
 import datetime as dt
 import json
 import os
-import time
 from logging import Logger
 from logging.config import dictConfig
 import uuid
@@ -50,26 +49,31 @@ class Config:
         return self._LOG.getChild(__name__)
 
     # a wrapper to log the time and result of each function call
-    def log_v(self, func) -> callable:
+
+
+config = Config()
+
+
+def log_v(logger_name: str):
+    def decorator(func):
         def wrapper(*args, **kwargs):
-            __logger = self.get_logger().getChild(func.__name__)
+            __logger = config.get_logger(logger_name).getChild(func.__name__)
             start = dt.datetime.now()
             result = None
             try:
                 result = func(*args, **kwargs)
                 end = dt.datetime.now()
+                fmtime = f"{(end - start).total_seconds()} seconds"
                 __logger.debug(
-                    f"{func.__name__} executed in {end - start}\nResult: {result.__str__() if result else ''}"
+                    f"{func.__name__} executed in {fmtime}\nResult: {result.__str__() if result else ''}"
                 )
             except Exception as e:
                 end = dt.datetime.now()
                 __logger.error(f"{func.__name__} failed in {end - start}\nError: {e}")
             return result
-
         return wrapper
+    return decorator
 
-
-config = Config()
 
 if __name__ == "__main__":
     print(config.get_base_url())

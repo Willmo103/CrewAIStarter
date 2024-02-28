@@ -1,6 +1,7 @@
 import os
 import subprocess
 from crewai.tools import tool
+import psycopg2
 from crewtron.config import config as _config
 from crewai_tools import BaseTool
 import crewai_tools as ct
@@ -34,6 +35,25 @@ def submit_for_approval(results: str) -> str:
     return user_input(f"Results: {results}\nSubmit for Approval?")
 
 
+@tool("run sql in postgres database")
+def run_query(query: str) -> str:
+    """Run a query on a postgres database.
+
+    input: str - query
+
+    output: str - results
+    """
+    try:
+        conn = psycopg2.connect(_config.get_connection_string("crewai_test_db"))
+        cursor = conn.cursor()
+        cursor.execute(query)
+        results = cursor.fetchall()
+        conn.close()
+        return results
+    except Exception as e:
+        return str(e)
+
+
 class CodeEnvironment(BaseTool):
     name = "Ubuntu Development Environment"
     description = """
@@ -51,6 +71,53 @@ class CodeEnvironment(BaseTool):
 
     Working dir: /src
     """
+
+    def get_docker_compose(self, volume: str, dockerfile: str = "") -> str:
+        if not dockerfile:
+            return f"""
+            Version: '3'
+
+            Services:
+                {self.container}:
+                    image: ubuntu
+                    volumes:
+                        - {volume}:/src
+                    working_dir: /src
+
+               postgres:
+                    image: postgres
+                    environment:
+                        POSTGRES_USER: postgres
+                        POSTGRES_PASSWORD: postgres
+                        POSTGRES_DB: postgres
+
+            Volumes:
+                {self.container}:
+                pgdata:
+
+            """
+        else:
+            return f"""
+            Version: '3'
+
+            Services:
+                {self.container}:
+                    build: {_config.TMP + '/' + self.container}
+                    volumes:
+                        - {volume}:/src
+                    working_dir: /src
+
+               postgres:
+                    image: postgres
+                    environment:
+                        POSTGRES_USER: postgres
+                        POSTGRES_PASSWORD: postgres
+                        POSTGRES_DB: postgres
+
+            Volumes:
+                {self.container}:
+                pgdata:
+            """
 
     def init_container(self):
         global _config
@@ -82,5 +149,5 @@ class CodeEnvironment(BaseTool):
             logOutput(f"Error: {e}")
             return None
 
-    def _run(self, command: str) -> str:
+    def _run(self, command: str | list[str]) -> str:
         return self.container_context(command)
