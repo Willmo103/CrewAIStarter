@@ -4,7 +4,9 @@ import os
 
 import psycopg2
 
-_logs = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'logs')
+_logs = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "logs"
+)
 
 
 class PostgresHandler(logging.Handler):
@@ -74,7 +76,9 @@ class PostgresHandler(logging.Handler):
 class CustomFileHandler(logging.Handler):
     def __init__(self):
         logging.Handler.__init__(self)
-        self.filename = os.path.join(_logs, dt.datetime.now().strftime("%Y-%m-%d") + ".log")
+        self.filename = os.path.join(
+            _logs, dt.datetime.now().strftime("%Y-%m-%d") + ".log"
+        )
 
     def emit(self, record):
         if not os.path.exists(self.filename):

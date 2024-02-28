@@ -71,7 +71,9 @@ def log_v(logger_name: str):
                 end = dt.datetime.now()
                 __logger.error(f"{func.__name__} failed in {end - start}\nError: {e}")
             return result
+
         return wrapper
+
     return decorator
 
 
