@@ -1,10 +1,39 @@
+from coding.coding_agents import CodingAgents as ca
 from crewai import task
+from tools import BasicTools, DockerTools
 
+
+planning_tools = [
+    BasicTools.ask_question,
+    BasicTools.get_current_date,
+    BasicTools.save_output, # TODO: set a cache directory as a default location for saving output
+]
+# TODO: creat a cache directory in the setup of the project
+
+define_stack_tools = [
+    BasicTools.ask_question,
+    BasicTools.save_output,
+    DockerTools.build_image,
+]
+
+setup_environments_tools = [
+    DockerTools.write_code,
+    DockerTools.run_code,
+]
+
+database_tools = [
+    DockerTools.write_code,
+    DockerTools.run_code,
+]
+
+update_docker_env_tools = [
+    DockerTools.build_image,
+]
 
 class CodingTasks:
-    planning = task.Task(
-        agent="",
-        tools=[],
+    project_planning = task.Task(
+        agent=ca.product_manager,
+        tools=planning_tools,
         goal="To produce an outline, workflow, and user stories",
         expected_output="""
         A document detailing the project outline, workflow, and user stories
@@ -21,15 +50,17 @@ class CodingTasks:
 
         ## User Stories
         - As a [type of user], I want [an action] so that [benefit].
-        """
+        """,
     )
 
     define_stack = task.Task(
-        agent="",
-        tools=[],
-        goal="To decide on the technology stack",
+        agent=ca.product_manager
+        tools=define_stack_tools,
+        goal="To decide on the technology stack and successfully create a docker environment",
         expected_output="""
-        A YAML document describing the technology stack and environment setup
+        A YAML document describing the technology stack and environment setup,
+        a set of instructions and files for creating the environemt and installing the dependencies.
+        a dockerfile to initialize the environment.
 
         Example:
         ```yaml
@@ -38,12 +69,26 @@ class CodingTasks:
         database: PostgreSQL
         ci_cd: Jenkins
         ```
-        """
+        """,
+    )
+
+    create_database_schema = task.Task(
+        agent=ca.database_designer
+        tools=database_tools,
+        goal="To design and create the database schema, and test its efficiency",
+        expected_output="""
+        A database schema with efficient normalization and indexing, and a test
+        report on its performance and integrity.
+
+        Example:
+        - Schema: Tables and relationships defined with creation scripts written.
+        - Test Report: Performance and integrity tests passed.
+        """,
     )
 
     setup_environments = task.Task(
         agent="",
-        tools=[],
+        tools=setup_environments_tools,
         goal="To prepare all necessary environments including CI/CD pipelines",
         expected_output="""
         Fully configured development, testing, and production environments
@@ -53,7 +98,7 @@ class CodingTasks:
         - Testing environment available at test.example.com
         - Production deployed to prod.example.com
         - CI/CD pipeline configured for automatic testing and deployment
-        """
+        """,
     )
 
     pair_programming = task.Task(
@@ -67,11 +112,11 @@ class CodingTasks:
         - Feature: User login functionality
         - Tests: 5 tests, all passing
         - Codebase: Integrated into branch `feature/user-login`
-        """
+        """,
     )
 
     code_review = task.Task(
-        agent="",
+        agent=ca.senior_developer,
         tools=[],
         goal="To review the code for quality and readiness",
         expected_output="""
@@ -79,7 +124,7 @@ class CodingTasks:
 
         Example:
         - Code Review Report: All standards met, ready for merge into `main`
-        """
+        """,
     )
 
     documentation = task.Task(
@@ -93,7 +138,7 @@ class CodingTasks:
         - API Documentation: Available at /docs/api
         - User Manual: Included in /docs/user-manual.pdf
         - Code Comments: Throughout the codebase for key functions
-        """
+        """,
     )
 
     crash_report_handling = task.Task(
@@ -108,7 +153,7 @@ class CodingTasks:
         - Issue: Memory leak in the data processing module
         - Severity: High
         - Steps to Reproduce: Described in the report
-        """
+        """,
     )
 
     post_mortem_report = task.Task(
@@ -123,7 +168,7 @@ class CodingTasks:
         - Cause: Failed database migration
         - Actions Taken: Rollback to previous version, data recovery procedures initiated
         - Lessons Learned: Need for better testing of migration scripts
-        """
+        """,
     )
 
     feature_enhancement_proposal = task.Task(
@@ -138,7 +183,7 @@ class CodingTasks:
         - Rationale: Increasing demand for hands-free operation
         - Benefits: Improved accessibility, user satisfaction
         - Implementation Plan: Detailed in the proposal document
-        """
+        """,
     )
 
     security_audit = task.Task(
@@ -152,7 +197,7 @@ class CodingTasks:
         - Vulnerabilities: Listed with descriptions
         - Risk Levels: High, Medium, Low
         - Recommendations: Specific actions for each identified vulnerability
-        """
+        """,
     )
 
     performance_optimization = task.Task(
@@ -166,5 +211,18 @@ class CodingTasks:
         - Performance Issue: Slow response time in the search functionality
         - Optimization: Indexing database tables, query optimization
         - Benchmark: Response time improved from 5s to 0.5s
-        """
+        """,
+    )
+
+    update_dev_env = task.Task(
+        agent="",
+        tools=[],
+        goal="To update the development environment with a new Dockerfile",
+        expected_output="""
+        A new Docker environment with the updated configuration and dependencies
+
+        Example:
+        - Dockerfile: Updated with new dependencies
+        - Environment: Rebuilt and running with the latest changes
+        """,
     )

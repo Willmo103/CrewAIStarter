@@ -1,6 +1,12 @@
+import datetime as dt
 import logging
+import os
 
 import psycopg2
+
+_logs = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "logs"
+)
 
 
 class PostgresHandler(logging.Handler):
@@ -40,12 +46,8 @@ class PostgresHandler(logging.Handler):
         self.format(
             record
         )  # Ensure record attributes like exc_info are formatted into strings
-        exc_info = (
-            self.formatException(record.exc_info) if record.exc_info else None
-        )
-        stack_info = (
-            self.formatStack(record.stack_info) if record.stack_info else None
-        )
+        exc_info = self.formatException(record.exc_info) if record.exc_info else None
+        stack_info = self.formatStack(record.stack_info) if record.stack_info else None
 
         with self.conn.cursor() as cursor:
             cursor.execute(
@@ -68,4 +70,22 @@ class PostgresHandler(logging.Handler):
 
     def close(self):
         self.conn.close()
+        logging.Handler.close(self)
+
+
+class CustomFileHandler(logging.Handler):
+    def __init__(self):
+        logging.Handler.__init__(self)
+        self.filename = os.path.join(
+            _logs, dt.datetime.now().strftime("%Y-%m-%d") + ".log"
+        )
+
+    def emit(self, record):
+        if not os.path.exists(self.filename):
+            with open(self.filename, "w") as file:
+                file.write("\r")
+        with open(self.filename, "a") as file:
+            file.write(self.format(record) + "\n")
+
+    def close(self):
         logging.Handler.close(self)

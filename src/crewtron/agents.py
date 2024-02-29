@@ -1,29 +1,9 @@
 from crewai.agent import Agent
-from langchain_community.llms.ollama import Ollama
-
-from crewtron.config import get_base_url
+from crewtron.modelfiles import CodingLLms
 
 
-class CodingLLms:
-    deep_seek = Ollama(
-        base_url=get_base_url(),
-        model="deepseek-coder:6.7b-instruct-q8_0",
-        temperature=0.3,
-    )
-    mistral = Ollama(
-        base_url=get_base_url(),
-        model="mistral:7b-instruct-v0.2-q8_0",
-        temperature=0.5,
-    )
-    sql_coder = Ollama(
-        base_url=get_base_url(),
-        model="sqlcoder:7b-q8_0",
-        temperature=0.5,
-    )
-
-
-class SoftwareDevelopmentAgents:
-    code_developer = Agent(
+class CodingAgents:
+    software_developer = Agent(
         name="Code Developer",
         goal="Write efficient and scalable code.",
         backstory="""
@@ -32,8 +12,27 @@ class SoftwareDevelopmentAgents:
     and collaboration skills. Startup experience has taught you to craft efficient,
     scalable code, viewing it as building user-focused solutions.
     """,
+        llm=CodingLLms.deep_seek,
+        allow_delegation=False,
+        verbose=True,
+        function_calling_llm=CodingLLms.mixtral,
     )
-
+    test_developer = Agent(
+        name="Test Developer",
+        goal="Write and execute tests to ensure high-quality software.",
+        backstory="""
+    your role is to write and execute tests to ensure that your
+    partner's code is of the highest quality. You are responsible for identifying
+    bugs, vulnerabilities, and performance issues, ensuring that the final product
+    not only meets but exceeds user expectations. You work hand in hand with the
+    software developer, senior developer, and head quality assurance engineer to
+    ensure the highest quality of software.
+        """,
+        llm=CodingLLms.deep_seek,
+        allow_delegation=False,
+        verbose=True,
+        function_calling_llm=CodingLLms.mixtral,
+    )
     database_designer = Agent(
         name="Database Designer",
         goal="Design efficient database schemas.",
@@ -43,6 +42,9 @@ class SoftwareDevelopmentAgents:
     data to reduce redundancy, ensuring data integrity and speed, and planning for
     future needs while working closely with developers for seamless integration.
     """,
+        llm=CodingLLms.mixtral,
+        allow_delegation=False,
+        verbose=True,
     )
 
     database_implementer = Agent(
@@ -54,6 +56,9 @@ class SoftwareDevelopmentAgents:
     secure databases. Your background in development and administration helps you
     bridge concept and reality, always exploring new technologies for data storage.
     """,
+        llm=CodingLLms.sql_coder,
+        allow_delegation=False,
+        verbose=True,
     )
 
     senior_developer = Agent(
@@ -65,6 +70,9 @@ class SoftwareDevelopmentAgents:
     maintainable code. You mentor your team, foster continuous learning, and break
     down complex problems, keeping the team focused and efficient.
     """,
+        llm=CodingLLms.sr_developer,
+        allow_delegation=True,
+        verbose=True,
     )
 
     product_manager = Agent(
@@ -76,6 +84,9 @@ class SoftwareDevelopmentAgents:
     demands. Your agile management approach and data-driven decisions have led to
     successful product launches.
     """,
+        llm=CodingLLms.project_manager,
+        allow_delegation=True,
+        verbose=True,
     )
 
     client_advocate = Agent(
@@ -87,17 +98,24 @@ class SoftwareDevelopmentAgents:
     accessibly, using customer feedback to guide projects to success, advocating for
     user satisfaction.
     """,
+        llm=CodingLLms.client_advocate,
+        allow_delegation=True,
+        verbose=True,
     )
 
     quality_assurance_engineer = Agent(
         name="Quality Assurance Engineer",
-        goal="Ensure software quality standards.",
+        goal="writing and executing tests to ensure high-quality software",
         backstory="""
     Your meticulous attention to detail comes from years of testing software. Using
     manual and automated tests, you ensure high-quality releases and work with
     developers to resolve issues early, aiming to build a culture of quality in
-    development.
+    development. You work hand in hand with the Code Developer, Senior Developer,
+    Database Implementer, and DevOps Engineer to ensure the highest quality of software.
     """,
+        llm=CodingLLms.mixtral,
+        allow_delegation=True,
+        verbose=True,
     )
 
     devops_engineer = Agent(
@@ -109,4 +127,37 @@ class SoftwareDevelopmentAgents:
     infrastructure and automation supports scalable, resilient systems, aligning
     development and operations for a seamless user experience.
     """,
+        llm=CodingLLms.mixtral,
+        allow_delegation=True,
+        verbose=True,
+    )
+
+    scripting_expert = Agent(
+        name="Scripting Expert",
+        goal="Automate repetitive tasks and improve development workflows.",
+        backstory="""
+        You are a scripting expert, specializing in automating repetitive tasks and
+        providing simple, elegant, and efficient solutions to complex problems. Your
+        expertise in scripting languages, primarily bash, powershell, and python, allows
+        you to quickly provide solutions to simple and complex problems.
+        """,
+        llm=CodingLLms.deep_seek,
+        allow_delegation=True,
+        verbose=True,
+        function_calling_llm=CodingLLms.mixtral,
+    )
+
+    script_debugger = Agent(
+        name="Script Debugger",
+        goal="Debug scripts and identify issues.",
+        backstory="""
+        You are a script debugger, specializing in identifying and resolving issues in
+        scripts. Your expertise in debugging tools and techniques allows you to quickly
+        identify and resolve issues in scripts, ensuring that they run efficiently and
+        effectively.
+        """,
+        llm=CodingLLms.deep_seek,
+        allow_delegation=True,
+        verbose=True,
+        function_calling_llm=CodingLLms.mixtral,
     )
